@@ -7,14 +7,34 @@ use Illuminate\Support\Facades\Http;
 
 class CryptocurrencyList extends Controller
 {
-    public function getCryptocurrencyList() 
+    public static function getCryptocurrencyListWithTargets(): object
+    {
+        $targetKeys = ['symbol', 'name', 'price'];
+        $traversionKeys = ['quotes', 'USD'];
+
+        return view('show-cryptocurrency-list', ['cryptocurrencies' => self::getCryptocurrencyList($targetKeys, $traversionKeys)]);
+    }
+
+    public static function getCryptocurrencyListRankedPercentChange15m(): object 
+    {
+        $targetKeys = ['symbol', 'name', 'price', 'percent_change_15m'];
+        $traversionKeys = ['quotes', 'USD'];
+
+        $array = self::getCryptocurrencyList($targetKeys, $traversionKeys);
+        $collection = collect($array);
+        $sorted = $collection->sortByDesc('percent_change_15m');
+        $sliced = $sorted->slice(0, 10);
+        $cryptocurrencies = $sliced->all();
+
+        return view('show-cryptocurrency-list-ranked', ['cryptocurrencies' => $cryptocurrencies]);
+    }
+
+
+    public static function getCryptocurrencyList($targetKeys, $traversionKeys): array
     {
         $response = Http::get('https://api.coinpaprika.com/v1/tickers');
         $responseCryptocurrencies = json_decode($response, TRUE);
         $cryptocurrencies = array();
-
-        $keys = ['id', 'name', 'symbol', 'price'];
-        $arrayKeys = ['quotes', 'USD'];
 
         foreach ($responseCryptocurrencies as $cryptocurrency) 
         {
@@ -22,18 +42,18 @@ class CryptocurrencyList extends Controller
 
             foreach ($cryptocurrency as $key1 => $value1) 
             {
-                if (in_array($key1, $keys))
+                if (in_array($key1, $targetKeys))
                 {
                     $temporaryCryptoccurency[$key1] = $value1; 
-                } elseif (in_array($key1, $arrayKeys))
+                } elseif (in_array($key1, $traversionKeys))
                 {
                     foreach ($value1 as $key2 => $value2)  
                     {
-                        if (in_array($key2, $arrayKeys)) 
+                        if (in_array($key2, $traversionKeys)) 
                         {
                             foreach ($value2 as $key3 => $value3) 
                             {
-                                if (in_array($key3, $keys)) {
+                                if (in_array($key3, $targetKeys)) {
                                     $temporaryCryptoccurency[$key3] = $value3;
                                 }
                             }
@@ -41,10 +61,9 @@ class CryptocurrencyList extends Controller
                     }
                 }
             }
-
             array_push($cryptocurrencies, $temporaryCryptoccurency);
         }
 
-        return view('show-cryptocurrency-list   ', ['cryptocurrencies' => $cryptocurrencies]);
+        return $cryptocurrencies;
     }
 }

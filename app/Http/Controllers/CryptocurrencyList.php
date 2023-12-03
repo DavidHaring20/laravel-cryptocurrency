@@ -3,24 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 
 class CryptocurrencyList extends Controller
 {
     public static function getCryptocurrencyListWithTargets(): object
     {
-        $targetKeys = ['symbol', 'name', 'price'];
-        $traversionKeys = ['quotes', 'USD'];
-
-        return view('show-cryptocurrency-list', ['cryptocurrencies' => self::getCryptocurrencyList($targetKeys, $traversionKeys)]);
+        return view('show-cryptocurrency-list', 
+            ['cryptocurrencies' => self::getCryptocurrencyList(Config::get('constants.TARGET_KEYS'), 
+                                                            Config::get('constants.TRAVERSION_KEYS'))]);
     }
 
     public static function getCryptocurrencyListRankedPercentChange15m(): object 
     {
-        $targetKeys = ['symbol', 'name', 'price', 'percent_change_15m'];
-        $traversionKeys = ['quotes', 'USD'];
-
-        $array = self::getCryptocurrencyList($targetKeys, $traversionKeys);
+        $array = self::getCryptocurrencyList(Config::get('constants.TARGET_KEYS_RANKED_LIST'), 
+                                            Config::get('constants.TRAVERSION_KEYS'));
         $collection = collect($array);
         $sorted = $collection->sortByDesc('percent_change_15m');
         $sliced = $sorted->slice(0, 10);

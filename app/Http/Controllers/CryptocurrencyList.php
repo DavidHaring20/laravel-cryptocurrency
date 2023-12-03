@@ -21,8 +21,7 @@ class CryptocurrencyList extends Controller
                                             Config::get('constants.TRAVERSION_KEYS'));
         $collection = collect($array);
         $sorted = $collection->sortByDesc('percent_change_15m');
-        $sliced = $sorted->slice(0, 10);
-        $cryptocurrencies = $sliced->all();
+        $cryptocurrencies = $sorted->slice(0, 10);
 
         return view('show-cryptocurrency-list-ranked', ['cryptocurrencies' => $cryptocurrencies]);
     }

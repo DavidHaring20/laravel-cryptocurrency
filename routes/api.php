@@ -20,6 +20,8 @@ use App\Http\Controllers\CryptocurrencyList;
 Route::get('getCryptocurrencyListWithTargets', [CryptocurrencyList::class, 'getCryptocurrencyListWithTargets']);
 Route::get('getCryptocurrencyListRankedPercentChange15m', [CryptocurrencyList::class, 'getCryptocurrencyListRankedPercentChange15m']);
 
+Route::get('cronjob', [CryptocurrencyList::class, 'cronjob']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

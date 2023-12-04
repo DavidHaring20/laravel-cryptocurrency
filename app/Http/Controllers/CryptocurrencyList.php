@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cryptocurrency;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+
 
 class CryptocurrencyList extends Controller
 {
@@ -25,6 +28,33 @@ class CryptocurrencyList extends Controller
         $cryptocurrencies = $sorted->slice(0, 10);
 
         return view('show-cryptocurrency-list-ranked', ['cryptocurrencies' => $cryptocurrencies]);
+    }
+
+    public static function cronjob() 
+    {
+        $array = self::getCryptocurrencyList(Config::get('constants.TARGET_KEYS_RANKED_LIST'), 
+                                            Config::get('constants.TRAVERSION_KEYS'));
+        foreach ($array as $cryptocurrency)
+        {
+            if (Cryptocurrency::where('symbol', $cryptocurrency['symbol'])->first())
+            {
+                echo "update ".$cryptocurrency['name']." ";
+                Cryptocurrency::where('symbol', $cryptocurrency['symbol'])
+                                ->update([
+                                    'price' => $cryptocurrency['price'],
+                                    'percent_change_15m' => $cryptocurrency['percent_change_15m']            
+                                ]);
+            } else 
+            {
+                echo "new ".$cryptocurrency['name']." ";
+                $newCryptocurrency = Cryptocurrency::create([
+                    'name' => $cryptocurrency['name'],
+                    'symbol' => $cryptocurrency['symbol'],
+                    'price' => $cryptocurrency['price'],
+                    'percent_change_15m' => $cryptocurrency['percent_change_15m']
+                ]);
+            }
+        }
     }
 
 

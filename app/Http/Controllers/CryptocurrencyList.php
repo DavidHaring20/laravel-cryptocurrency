@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 
@@ -29,38 +30,48 @@ class CryptocurrencyList extends Controller
 
     public static function getCryptocurrencyList($targetKeys, $traversionKeys): array
     {
-        $response = Http::get('https://api.coinpaprika.com/v1/tickers');
-        $responseCryptocurrencies = json_decode($response, TRUE);
-        $cryptocurrencies = array();
-
-        foreach ($responseCryptocurrencies as $cryptocurrency) 
+        try 
         {
-            $temporaryCryptoccurency = [];
+            $response = Http::get('https://api.coinpaprika.com/v1/tickers');
+            if (!$response->successful()) {
+                $response->throw();
+            }
 
-            foreach ($cryptocurrency as $key1 => $value1) 
+            $responseCryptocurrencies = json_decode($response, TRUE);
+            $cryptocurrencies = array();
+
+            foreach ($responseCryptocurrencies as $cryptocurrency) 
             {
-                if (in_array($key1, $targetKeys))
+                $temporaryCryptoccurency = [];
+
+                foreach ($cryptocurrency as $key1 => $value1) 
                 {
-                    $temporaryCryptoccurency[$key1] = $value1; 
-                } elseif (in_array($key1, $traversionKeys))
-                {
-                    foreach ($value1 as $key2 => $value2)  
+                    if (in_array($key1, $targetKeys))
                     {
-                        if (in_array($key2, $traversionKeys)) 
+                        $temporaryCryptoccurency[$key1] = $value1; 
+                    } elseif (in_array($key1, $traversionKeys))
+                    {
+                        foreach ($value1 as $key2 => $value2)  
                         {
-                            foreach ($value2 as $key3 => $value3) 
+                            if (in_array($key2, $traversionKeys)) 
                             {
-                                if (in_array($key3, $targetKeys)) {
-                                    $temporaryCryptoccurency[$key3] = $value3;
+                                foreach ($value2 as $key3 => $value3) 
+                                {
+                                    if (in_array($key3, $targetKeys)) {
+                                        $temporaryCryptoccurency[$key3] = $value3;
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                array_push($cryptocurrencies, $temporaryCryptoccurency);
             }
-            array_push($cryptocurrencies, $temporaryCryptoccurency);
+            return $cryptocurrencies;
+        } catch (ConnectException $exception) 
+        {   
+            throw $exception;
         }
-
-        return $cryptocurrencies;
+        
     }
 }

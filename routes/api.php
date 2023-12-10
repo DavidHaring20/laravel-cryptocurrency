@@ -16,7 +16,7 @@ use App\Http\Controllers\CryptocurrencyList;
 |
 */
 
-# Route::get('getCryptocurrencyList', [CryptocurrencyList::class, 'getCryptocurrencyList']);
+Route::get('getCryptocurrencyList', [CryptocurrencyList::class, 'getCryptocurrencyList']);
 Route::get('getCryptocurrencyListWithTargets', [CryptocurrencyList::class, 'getCryptocurrencyListWithTargets']);
 Route::get('getCryptocurrencyListRankedPercentChange15m', [CryptocurrencyList::class, 'getCryptocurrencyListRankedPercentChange15m']);
 

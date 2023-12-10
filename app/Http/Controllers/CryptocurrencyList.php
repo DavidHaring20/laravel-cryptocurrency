@@ -58,7 +58,7 @@ class CryptocurrencyList extends Controller
     }
 
 
-    public static function getCryptocurrencyList($targetKeys, $traversionKeys): array
+    public static function getCryptocurrencyList(): array
     {
         try 
         {
@@ -72,29 +72,13 @@ class CryptocurrencyList extends Controller
 
             foreach ($responseCryptocurrencies as $cryptocurrency) 
             {
-                $temporaryCryptoccurency = [];
+                $temporaryCryptoccurency = [
+                    'id' => $cryptocurrency['id'],
+                    'name' => $cryptocurrency['name'],
+                    'symbol' => $cryptocurrency['symbol'],
+                    'quotes' => $cryptocurrency['quotes']['USD']
+                ];
 
-                foreach ($cryptocurrency as $key1 => $value1) 
-                {
-                    if (in_array($key1, $targetKeys))
-                    {
-                        $temporaryCryptoccurency[$key1] = $value1; 
-                    } elseif (in_array($key1, $traversionKeys))
-                    {
-                        foreach ($value1 as $key2 => $value2)  
-                        {
-                            if (in_array($key2, $traversionKeys)) 
-                            {
-                                foreach ($value2 as $key3 => $value3) 
-                                {
-                                    if (in_array($key3, $targetKeys)) {
-                                        $temporaryCryptoccurency[$key3] = $value3;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
                 array_push($cryptocurrencies, $temporaryCryptoccurency);
             }
             return $cryptocurrencies;
@@ -102,6 +86,5 @@ class CryptocurrencyList extends Controller
         {   
             throw $exception;
         }
-        
     }
 }

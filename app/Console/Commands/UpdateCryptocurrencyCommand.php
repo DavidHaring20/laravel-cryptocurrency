@@ -31,21 +31,29 @@ class UpdateCryptocurrencyCommand extends Command
         $array = $cryptocurrencyListService->getCryptocurrencyList();
         foreach ($array as $cryptocurrency)
         {
-            if (Cryptocurrency::where('symbol', $cryptocurrency['symbol'])->first())
+            $cryptocurrencyFromDB = Cryptocurrency::where('symbol', $cryptocurrency['symbol'])->first();
+            
+            if ($cryptocurrencyFromDB === null) 
             {
-                Cryptocurrency::where('symbol', $cryptocurrency['symbol'])
-                                ->update([
-                                    'price' => $cryptocurrency['quotes']['price'],
-                                    'percent_change_15m' => $cryptocurrency['quotes']['percent_change_15m']            
-                                ]);
-            } else 
-            {
-                $newCryptocurrency = Cryptocurrency::create([
+                // If cryptocurrency doesn't exist
+                Cryptocurrency::create([
                     'name' => $cryptocurrency['name'],
                     'symbol' => $cryptocurrency['symbol'],
                     'price' => $cryptocurrency['quotes']['price'],
                     'percent_change_15m' => $cryptocurrency['quotes']['percent_change_15m']
-                ]);
+                ]);  
+            } elseif ($cryptocurrencyFromDB->price_updated === 0) 
+            {
+                // If cryptocurrency exists and hasn't been edited
+                $cryptocurrencyFromDB->price = $cryptocurrency['quotes']['price'];
+                $cryptocurrencyFromDB->percent_change_15m = $cryptocurrency['quotes']['percent_change_15m'];
+                $cryptocurrencyFromDB->save();
+            } 
+            else 
+            {
+                // If cryptocurrency exists and has been edited
+                $cryptocurrencyFromDB->percent_change_15m = $cryptocurrency['quotes']['percent_change_15m'];
+                $cryptocurrencyFromDB->save();
             }
         }
 

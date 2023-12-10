@@ -12,13 +12,6 @@ use Illuminate\Support\Facades\Http;
 
 class CryptocurrencyList extends Controller
 {
-    public static function getCryptocurrencyListWithTargets(): object
-    {
-        return view('show-cryptocurrency-list', 
-            ['cryptocurrencies' => self::getCryptocurrencyList(Config::get('constants.TARGET_KEYS'), 
-                                                            Config::get('constants.TRAVERSION_KEYS'))]);
-    }
-
     public static function getCryptocurrencyListRankedPercentChange15m(): object
     {
         $array = self::getCryptocurrencyList();

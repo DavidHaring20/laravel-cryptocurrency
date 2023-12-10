@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('name', 50);
             $table->string('symbol', 10)->unique();
             $table->decimal('price');
-            $table->decimal('percent_change_15m', $precision=4, $scale=2);
+            $table->decimal('percent_change_15m');
+            $table->boolean('price_updated')->default('0');
             $table->timestamps();
         });
     }

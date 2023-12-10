@@ -15,8 +15,8 @@
                 <td>{{ $loop->iteration }}</td>
                 <td>{{$cryptocurrency['name']}}</td>
                 <td>{{$cryptocurrency['symbol']}}</td>
-                <td>{{$cryptocurrency['price']}}</td>
-                <td>{{$cryptocurrency['percent_change_15m']}}</td>
+                <td>{{$cryptocurrency['quotes']['price']}}</td>
+                <td>{{$cryptocurrency['quotes']['percent_change_15m']}}</td>
             </tr>
         @endforeach  
     </table>

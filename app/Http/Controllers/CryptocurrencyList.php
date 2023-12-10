@@ -19,12 +19,13 @@ class CryptocurrencyList extends Controller
                                                             Config::get('constants.TRAVERSION_KEYS'))]);
     }
 
-    public static function getCryptocurrencyListRankedPercentChange15m(): object 
+    public static function getCryptocurrencyListRankedPercentChange15m(): object
     {
-        $array = self::getCryptocurrencyList(Config::get('constants.TARGET_KEYS_RANKED_LIST'), 
-                                            Config::get('constants.TRAVERSION_KEYS'));
+        $array = self::getCryptocurrencyList();
         $collection = collect($array);
-        $sorted = $collection->sortByDesc('percent_change_15m');
+        $sorted = $collection->sortByDesc(function ($item) {
+            return $item['quotes']['percent_change_15m'];
+        });
         $cryptocurrencies = $sorted->slice(0, 10);
 
         return view('show-cryptocurrency-list-ranked', ['cryptocurrencies' => $cryptocurrencies]);
